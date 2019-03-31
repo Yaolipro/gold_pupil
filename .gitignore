@@ -1,4 +1,5 @@
 
+*.pyc
 .idea/
 spider/setting.py
 spider/gold_price.txt
