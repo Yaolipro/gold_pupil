@@ -37,24 +37,32 @@ def get_gold():
     try:
         data = url_open(URL)
 
-        pat1 = '<span class="fl color999">（截止日期: (.*?)）'
-        pat2 = '<span class="colorRed fs24">(.+?)<'
+        pat1 = '<li><p>行情日期：(.+?)</p></li>'
+        pat2 = '<li><p>上海金早盘价（元/克）</p><span class="colorRed fs20">(.+?)</span></li>'
+        pat3 = '<li><p>上海金午盘价（元/克）</p><span class="colorRed fs20">(.+?)</span></li>'
+        pat4 = '<li><p>上海银早盘价（元/千克）</p><span class="colorRed fs20">(.+?)</span></li>'
+        pat5 = '<li><p>上海银午盘价（元/千克）</p><span class="colorRed fs20">(.+?)</span></li>'
 
         statis_time = re.compile(pat1).findall(data)[0]
-        today_price = re.compile(pat2).findall(data)[0]
+        gold_1_price = re.compile(pat2).findall(data)[0]
+        gold_2_price = re.compile(pat3).findall(data)[0]
+        silver_1_price = re.compile(pat4).findall(data)[0]
+        silver_2_price = re.compile(pat5).findall(data)[0]
 
         with open('gold_price.txt', 'a+') as fh:
-            fh.write("日期：" + get_today() + "\t截止日期" + statis_time + "\t" + "早盘价：" + today_price + "\n")
+            content = "日期：" + get_today() + "\t行情日期：" + statis_time + "\n" \
+                      + "金早盘价：" + gold_1_price + "\t" + "金午盘价：" + gold_2_price + "\n" \
+                      + "银早盘价：" + silver_1_price + "\t" + "银午盘价：" + silver_2_price + "\n"
+            fh.write(content)
 
-        return str(today_price)
+        return content
     except Exception as e:
         return "not available, %s" % str(e)
 
 
 if __name__ == "__main__":
-    value = get_gold()
-    content = '日期：%s, 价格：%s' % (get_today(), value)
-    content += '\n下线：275, 上线285'
+    content = get_gold()
+    content += '金价下线：275, 上线285'
     e = Email(MAIL_USER, MAIL_PASS, MAIL_HOST)
     e.send(RECEIVERS, "黄金瞳", content)
 
